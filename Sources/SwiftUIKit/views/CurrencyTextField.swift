@@ -238,6 +238,11 @@ public struct CurrencyTextField: UIViewRepresentable {
         }
         
         public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+            guard string != "-" else {
+                textField.text = "-"
+                return false
+            }
+            
             // get new value
             let originalText = textField.text
             let text = textField.text as NSString?
@@ -357,7 +362,7 @@ fileprivate extension String {
     
     // all numbers including fractions
     var decimals: String {
-        return components(separatedBy: CharacterSet(charactersIn: "0123456789" + (Locale.current.decimalSeparator ?? ".")).inverted).joined()
+        return components(separatedBy: CharacterSet(charactersIn: "-0123456789" + (Locale.current.decimalSeparator ?? ".")).inverted).joined()
     }
     
     // just numbers
