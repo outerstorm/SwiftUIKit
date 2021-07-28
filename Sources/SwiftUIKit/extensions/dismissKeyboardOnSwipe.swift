@@ -28,13 +28,13 @@ public struct DismissKeyboardOnSwipe: ViewModifier {
             .onChanged(endEditing)
     }
 
-    private func endEditing(_ gesture: DragGesture.Value) {
-        UIApplication.shared.connectedScenes
-            .filter {$0.activationState == .foregroundActive}
-            .map {$0 as? UIWindowScene}
-            .compactMap({$0})
-            .first?.windows
-            .filter {$0.isKeyWindow}
-            .first?.endEditing(true)
-    }
+//    private func endEditing(_ gesture: DragGesture.Value) {
+//        UIApplication.shared.connectedScenes
+//            .filter {$0.activationState == .foregroundActive}
+//            .map {$0 as? UIWindowScene}
+//            .compactMap({$0})
+//            .first?.windows
+//            .filter {$0.isKeyWindow}
+//            .first?.endEditing(true)
+//    }
 }
