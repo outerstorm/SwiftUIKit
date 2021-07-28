@@ -27,7 +27,7 @@ public struct DismissKeyboardOnTap: ViewModifier {
         TapGesture().onEnded(endEditing)
     }
 
-//    private func endEditing() {
+    private func endEditing() {
 //        UIApplication.shared.connectedScenes
 //            .filter {$0.activationState == .foregroundActive}
 //            .map {$0 as? UIWindowScene}
@@ -35,6 +35,6 @@ public struct DismissKeyboardOnTap: ViewModifier {
 //            .first?.windows
 //            .filter {$0.isKeyWindow}
 //            .first?.endEditing(true)
-//    }
+    }
 }
 
