@@ -15,6 +15,7 @@ public struct CurrencyTextField: UIViewRepresentable {
     private var tag: Int
     private var alwaysShowFractions: Bool
     private var numberOfDecimalPlaces: Int
+    private var showCurrencySymbol: Bool
     
     private var placeholder: String
     
@@ -46,6 +47,7 @@ public struct CurrencyTextField: UIViewRepresentable {
         tag: Int = 0,
         alwaysShowFractions: Bool = false,
         numberOfDecimalPlaces: Int = 2,
+        showCurrencySymbol: Bool = true,
         font: UIFont? = nil,
         foregroundColor: UIColor? = nil,
         accentColor: UIColor? = nil,
@@ -67,6 +69,7 @@ public struct CurrencyTextField: UIViewRepresentable {
         self.tag = tag
         self.alwaysShowFractions = alwaysShowFractions
         self.numberOfDecimalPlaces = numberOfDecimalPlaces
+        self.showCurrencySymbol = showCurrencySymbol
         
         self.font = font
         self.foregroundColor = foregroundColor
@@ -94,7 +97,9 @@ public struct CurrencyTextField: UIViewRepresentable {
         
         // initial value
         if let v = self.value {
-            textField.text = v.currencyFormat(decimalPlaces: self.numberOfDecimalPlaces, forceShowDecimalPlaces: self.alwaysShowFractions)
+            textField.text = v.currencyFormat(decimalPlaces: self.numberOfDecimalPlaces,
+                                              forceShowDecimalPlaces: self.alwaysShowFractions,
+                                              showCurrencySymbol: self.showCurrencySymbol)
         }
         
         // tag
@@ -178,7 +183,7 @@ public struct CurrencyTextField: UIViewRepresentable {
     }
     
     public func makeCoordinator() -> CurrencyTextField.Coordinator {
-        Coordinator(value: $value, isResponder: self.isResponder, alwaysShowFractions: self.alwaysShowFractions, numberOfDecimalPlaces: self.numberOfDecimalPlaces, onReturn: self.onReturn){ flag in
+        Coordinator(value: $value, isResponder: self.isResponder, alwaysShowFractions: self.alwaysShowFractions, numberOfDecimalPlaces: self.numberOfDecimalPlaces, showCurrencySymbol: self.showCurrencySymbol, onReturn: self.onReturn){ flag in
             self.onEditingChanged(flag)
         }
     }
@@ -216,6 +221,7 @@ public struct CurrencyTextField: UIViewRepresentable {
         private var onReturn: ()->()
         private var alwaysShowFractions: Bool
         private var numberOfDecimalPlaces: Int
+        private var showCurrencySymbol: Bool
         var internalValue: Double?
         var onEditingChanged: (Bool)->()
         var didBecomeFirstResponder = false
@@ -224,6 +230,7 @@ public struct CurrencyTextField: UIViewRepresentable {
              isResponder: Binding<Bool>?,
              alwaysShowFractions: Bool,
              numberOfDecimalPlaces: Int,
+             showCurrencySymbol: Bool,
              onReturn: @escaping () -> Void = {},
              onEditingChanged: @escaping (Bool) -> Void = { _ in }
         ) {
@@ -233,6 +240,7 @@ public struct CurrencyTextField: UIViewRepresentable {
             self.isResponder = isResponder
             self.alwaysShowFractions = alwaysShowFractions
             self.numberOfDecimalPlaces = numberOfDecimalPlaces
+            self.showCurrencySymbol = showCurrencySymbol
             self.onReturn = onReturn
             self.onEditingChanged = onEditingChanged
         }
@@ -247,7 +255,7 @@ public struct CurrencyTextField: UIViewRepresentable {
             let originalText = textField.text
             let text = textField.text as NSString?
             let newValue = text?.replacingCharacters(in: range, with: string)
-            let display = newValue?.currencyFormat(decimalPlaces: self.numberOfDecimalPlaces)
+            let display = newValue?.currencyFormat(decimalPlaces: self.numberOfDecimalPlaces, showCurrencySymbol: showCurrencySymbol)
             
             // validate change
             if !shouldAllowChange(oldValue: textField.text ?? "", newValue: newValue ?? "") {
@@ -395,7 +403,7 @@ fileprivate extension String {
     
     // args:
     // decimalPlaces - the max number of decimal places
-    func currencyFormat(decimalPlaces: Int? = nil) -> String? {
+    func currencyFormat(decimalPlaces: Int? = nil, showCurrencySymbol: Bool = true) -> String? {
         // uses self.double
         // logic for varying the number of fraction digits
         guard let double = double else {
@@ -403,6 +411,9 @@ fileprivate extension String {
         }
         
         let formatter = Formatter.currency
+        if !showCurrencySymbol {
+            formatter.currencySymbol = ""
+        }
         
         // if has fractions, show fractions
         if fractions != nil {
@@ -432,8 +443,12 @@ fileprivate extension Double {
     // args:
     // decimalPlaces - number of decimal places
     // forceShowDecimalPlaces - whether to force show fractions
-    func currencyFormat(decimalPlaces: Int? = nil, forceShowDecimalPlaces: Bool = false) -> String? {
+    func currencyFormat(decimalPlaces: Int? = nil, forceShowDecimalPlaces: Bool = false, showCurrencySymbol: Bool = true) -> String? {
         let formatter = Formatter.currency
+        if !showCurrencySymbol {
+            formatter.currencySymbol = ""
+        }
+        
         var integer = 0.0
         let d = decimalPlaces != nil ? decimalPlaces! : 2
 
